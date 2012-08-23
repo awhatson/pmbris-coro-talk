@@ -13,20 +13,38 @@ my @urls = qw(
 );
 
 my @threads = ();
-for my $url (@urls) {
-	push @threads, async {              # create a new thread for each URL
-		my $start = time;
-		my $page = get_url($url);
-		printf "got %-30s (%fs)\n", $url, time - $start;
-	};
+
+for (1 .. 5) {                           # ed: moar threads!
+	for my $url (@urls) {
+		push @threads, async {           # create a new thread for each URL
+
+			my $start = time;
+			my $page = get_url($url);
+
+			printf "got %-30s (%fs)\n", $url, time - $start;
+
+		};
+	}
 }
 
-$_->join for @threads;                  # wait until all threads have finished
+$_->join for @threads;                   # wait until all threads have finished
 
 printf "got %-30s (%fs)\n", 'everything!', time - $global_start;
 
 sub get_url {
-	http_get(shift, rouse_cb);          # cede until ready
-	my ($data, $headers) = rouse_wait;  # wait and retrieve results
+	my $url = shift;
+
+	my $cv = AnyEvent->condvar;          # ed: the nuts'n'bolts version
+	my $cb = sub {
+		my ($data, $headers) = @_;
+		$cv->send($data, $headers);
+	};
+
+	http_get($url, $cb);
+	#http_get($url, rouse_cb);           # cede until ready
+
+	my ($data, $headers) = $cv->recv;
+	#my ($data, $headers) = rouse_wait;  # wait and retrieve results
+
 	return $data;
 }
