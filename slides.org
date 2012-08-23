@@ -26,19 +26,22 @@
 
 #+STARTUP: beamer
 
-* What they're not
+* Get these slides!
+- https://github.com/flatwhatson/pmbris-coro-talk
+
+* Lightweight Threads: What they're not
 - NOT pre-emptive threads
 - NOT kernel-level threads (eg. /pthreads/)
 - NOT perl threads (/ithreads/)
 - DEFINITELY NOT forks/processes
 
-* What they are
+* Lightweight Threads: What they are
 - co-operative threads (explicit yielding)
 - share a single instance of the interpreter
 - one thread active at a time
 - similar to python/ruby "green threads"
 
-* Why they're useful
+* Lightweight Threads: Why they're useful
 - easy to separate concurrent tasks
 - simple solution for IO-bound concurrency
 - minimal overhead - large /@threads/ is fine
